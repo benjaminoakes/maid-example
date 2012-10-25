@@ -44,12 +44,14 @@ Maid.rules do
     trash(dir('~/Downloads/*.1'))
   end
 
-  rule 'Treat downloaded videos as ones I have yet to watch' do
+  rule 'Collect downloaded videos to watch later' do
+    # This isn't quite right on OSX (would be "Movies"), but I've tended to prefer this.
     to_watch = '~/Videos/To Watch'
-
     mkdir(to_watch)
-    move(dir('~/Downloads/*.webm'), to_watch)
-    move(dir('~/Downloads/*.m4v'), to_watch)
-    move(dir('~/Downloads/*.mp4'), to_watch)
+
+    # I'm hoping to simplify this with mimetypes.  See the [Add filetype detection](https://github.com/benjaminoakes/maid/issues/51) issue.
+    %w(mov mp4 m4v ogv webm).each do |ext|
+      move(dir("~/Downloads/*.#{ ext }"), to_watch)
+    end
   end
 end
