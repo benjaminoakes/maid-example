@@ -6,6 +6,9 @@
 Maid.rules do
   # NOTE: Some of these rules depend on features in Maid 0.1.3 (still in beta as of 2012.10.20).
 
+  # Temporary Files
+  # ---------------
+
   rule 'Dump my temporary folder' do
     mkdir('~/tmp')
     trash('~/tmp')
@@ -30,6 +33,9 @@ Maid.rules do
       trash(p) if 1.week.since?(created_at(p))
     end
   end
+
+  # Downloads
+  # ---------
 
   rule "Trash files that shouldn't have been downloaded" do
     trash(dir('~/Downloads/ATT*.c'))
