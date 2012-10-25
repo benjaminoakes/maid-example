@@ -11,4 +11,39 @@ Maid.rules do
     trash('~/tmp')
     mkdir('~/tmp')
   end
+
+  rule 'Trash old temporary files' do
+    dir('~/Outbox/*.tmp.*').each do |p|
+      trash(p) if 1.week.since?(accessed_at(p))
+    end
+  end
+
+  rule 'Trash working files not worth keeping' do
+    [
+      dir('~/Outbox/*.eml'),
+      dir('~/Outbox/*.mp3'),
+    ].flatten.each do |p|
+      trash(p) if 1.week.since?(accessed_at(p))
+    end
+
+    dir('~/Outbox/*.log').each do |p|
+      trash(p) if 1.week.since?(created_at(p))
+    end
+  end
+
+  rule "Trash files that shouldn't have been downloaded" do
+    trash(dir('~/Downloads/ATT*.c'))
+    trash(dir('~/Downloads/* (1).*'))
+    trash(dir('~/Downloads/* (2).*'))
+    trash(dir('~/Downloads/*.1'))
+  end
+
+  rule 'Treat downloaded videos as ones I have yet to watch' do
+    to_watch = '~/Videos/To Watch'
+
+    mkdir(to_watch)
+    move(dir('~/Downloads/*.webm'), to_watch)
+    move(dir('~/Downloads/*.m4v'), to_watch)
+    move(dir('~/Downloads/*.mp4'), to_watch)
+  end
 end
