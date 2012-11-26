@@ -37,7 +37,6 @@ Maid.rules do
   #
   rule 'Add titles to episodes' do
     dir('*.srt').sort.each do |srt|
-      dirname = File.dirname(srt)
       base = File.basename(srt, '.srt')
       old = "#{ base.split(' - ').first }.m4v"
       new = "#{ base }.m4v"
