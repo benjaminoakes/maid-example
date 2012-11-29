@@ -1,11 +1,12 @@
-# My personal Maid rules.
+# Personal Maid rules for [@benjaminoakes](https://github.com/benjaminoakes).
 #
 # I run them once an hour using `cron`.
 #
-# As a rule of thumb, keep in mind that it's easier to bend your process to Maid rather than bending Maid to your process.  That means making new folders, marking files with metadata (even just extensions), etc. just so you can have them automatically cleaned up.
+# As a rule of thumb, keep in mind that it's easier to bend your process to Maid
+# rather than bending Maid to your process.  That means making new folders, 
+# marking files with metadata (even just extensions), etc. just so you can have
+# them automatically cleaned up.
 Maid.rules do
-  # NOTE: Some of these rules depend on features in Maid 0.1.3 (still in beta as of 2012.10.20).
-
   # Temporary Files
   # ---------------
 
@@ -101,7 +102,8 @@ Maid.rules do
     to_watch = '~/Videos/To Watch'
     mkdir(to_watch)
 
-    # I'm hoping to simplify this with mimetypes.  See the [Add filetype detection](https://github.com/benjaminoakes/maid/issues/51) issue.
+    # I'm hoping to simplify this with mimetypes.  See the [Add filetype
+    # detection](https://github.com/benjaminoakes/maid/issues/51) issue.
     %w(mov mp4 m4v ogv webm).each do |ext|
       move(dir("~/Downloads/*.#{ ext }"), to_watch)
     end
