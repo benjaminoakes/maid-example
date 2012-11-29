@@ -1,1 +1,123 @@
-rules.html
+<!DOCTYPE html>  <html> <head>   <title>rules.rb</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="rename_from_srt.html">                 rename_from_srt.rb               </a>                                           <a class="source" href="rules.html">                 rules.rb               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               rules.rb             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <p>These are the <a href="https://github.com/benjaminoakes/maid">Maid</a> rules that I
+(<a href="https://github.com/benjaminoakes">@benjaminoakes</a>) use.  I run them once an hour using <code>cron</code>.</p>
+
+<p>You can find more information <a href="https://github.com/benjaminoakes/maid-example">on GitHub</a>.</p>
+
+<p>As a rule of thumb, keep in mind that it's easier to bend your process to Maid
+rather than bending Maid to your process.  That means making new folders, 
+marking files with metadata (even just extensions), etc. just so you can have
+them automatically cleaned up.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="no">Maid</span><span class="o">.</span><span class="n">rules</span> <span class="k">do</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <h2>Cleaning Temporary Files</h2>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="n">rule</span> <span class="s1">&#39;Dump my temporary folder&#39;</span> <span class="k">do</span>
+    <span class="n">mkdir</span><span class="p">(</span><span class="s1">&#39;~/tmp&#39;</span><span class="p">)</span>
+    <span class="n">trash</span><span class="p">(</span><span class="s1">&#39;~/tmp&#39;</span><span class="p">)</span>
+    <span class="n">mkdir</span><span class="p">(</span><span class="s1">&#39;~/tmp&#39;</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="n">rule</span> <span class="s1">&#39;Trash old temporary files&#39;</span> <span class="k">do</span>
+    <span class="n">dir</span><span class="p">(</span><span class="s1">&#39;~/Outbox/*.tmp.*&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">p</span><span class="o">|</span>
+      <span class="n">trash</span><span class="p">(</span><span class="nb">p</span><span class="p">)</span> <span class="k">if</span> <span class="mi">1</span><span class="o">.</span><span class="n">week</span><span class="o">.</span><span class="n">since?</span><span class="p">(</span><span class="n">accessed_at</span><span class="p">(</span><span class="nb">p</span><span class="p">))</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="n">rule</span> <span class="s1">&#39;Trash working files not worth keeping&#39;</span> <span class="k">do</span>
+    <span class="o">[</span>
+      <span class="n">dir</span><span class="p">(</span><span class="s1">&#39;~/Outbox/*.eml&#39;</span><span class="p">),</span>
+      <span class="n">dir</span><span class="p">(</span><span class="s1">&#39;~/Outbox/*.mp3&#39;</span><span class="p">),</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>I changed the default OS X screenshot directory from <code>~/Desktop</code> to <code>~/Outbox</code></p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="n">dir</span><span class="p">(</span><span class="s1">&#39;~/Outbox/Screen shot *&#39;</span><span class="p">),</span>
+    <span class="o">].</span><span class="n">flatten</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">p</span><span class="o">|</span>
+      <span class="n">trash</span><span class="p">(</span><span class="nb">p</span><span class="p">)</span> <span class="k">if</span> <span class="mi">1</span><span class="o">.</span><span class="n">week</span><span class="o">.</span><span class="n">since?</span><span class="p">(</span><span class="n">accessed_at</span><span class="p">(</span><span class="nb">p</span><span class="p">))</span>
+    <span class="k">end</span>
+
+    <span class="n">dir</span><span class="p">(</span><span class="s1">&#39;~/Outbox/*.log&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">p</span><span class="o">|</span>
+      <span class="n">trash</span><span class="p">(</span><span class="nb">p</span><span class="p">)</span> <span class="k">if</span> <span class="mi">1</span><span class="o">.</span><span class="n">week</span><span class="o">.</span><span class="n">since?</span><span class="p">(</span><span class="n">created_at</span><span class="p">(</span><span class="nb">p</span><span class="p">))</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="n">rule</span> <span class="s1">&#39;Trash accidentally saved files&#39;</span> <span class="k">do</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>I'm targeting places I'm likely to have used <code>vi</code>.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="n">trash</span><span class="p">(</span><span class="s1">&#39;~/:w&#39;</span><span class="p">)</span>
+    <span class="n">trash</span><span class="p">(</span><span class="s1">&#39;~/Outbox/:w&#39;</span><span class="p">)</span>
+
+    <span class="n">trash</span><span class="p">(</span><span class="n">dir</span><span class="p">(</span><span class="s1">&#39;~/Code/**/:w&#39;</span><span class="p">))</span>
+    <span class="n">trash</span><span class="p">(</span><span class="n">dir</span><span class="p">(</span><span class="s1">&#39;~/Projects/**/:w&#39;</span><span class="p">))</span>
+  <span class="k">end</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>I write little test programs sometimes, and I keep them around for reference.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="n">rule</span> <span class="s1">&#39;Archive code snippets&#39;</span> <span class="k">do</span>
+    <span class="n">base_archive_path</span> <span class="o">=</span> <span class="s1">&#39;~/Code/snippets/&#39;</span>
+
+    <span class="p">{</span>
+      <span class="s1">&#39;html&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;html&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;js&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;javascript&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;rb&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;ruby&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;sql&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;sql&#39;</span><span class="p">,</span>
+    <span class="p">}</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">ext</span><span class="p">,</span> <span class="n">directory</span><span class="o">|</span>
+      <span class="n">specific_archive_path</span> <span class="o">=</span> <span class="s2">&quot;~/Code/snippets/</span><span class="si">#{</span> <span class="n">directory</span> <span class="si">}</span><span class="s2">&quot;</span>
+
+      <span class="n">dir</span><span class="p">(</span><span class="s2">&quot;~/Outbox/*.</span><span class="si">#{</span> <span class="n">ext</span> <span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">path</span><span class="o">|</span>
+        <span class="k">if</span> <span class="mi">1</span><span class="o">.</span><span class="n">week</span><span class="o">.</span><span class="n">ago</span> <span class="o">&gt;</span> <span class="n">accessed_at</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+          <span class="n">mkdir</span><span class="p">(</span><span class="n">specific_archive_path</span><span class="p">)</span>
+          <span class="n">move</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">specific_archive_path</span><span class="p">)</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <h2>Cleaning Downloads</h2>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="n">rule</span> <span class="s2">&quot;Trash files that shouldn&#39;t have been downloaded&quot;</span> <span class="k">do</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <p>Annoying extra text files from Exchange attachments</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="n">trash</span><span class="p">(</span><span class="n">dir</span><span class="p">(</span><span class="s1">&#39;~/Downloads/ATT*.c&#39;</span><span class="p">))</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <p>Quick 'n' dirty duplicate download detection</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="n">trash</span><span class="p">(</span><span class="n">dir</span><span class="p">(</span><span class="s1">&#39;~/Downloads/* (1).*&#39;</span><span class="p">))</span>
+    <span class="n">trash</span><span class="p">(</span><span class="n">dir</span><span class="p">(</span><span class="s1">&#39;~/Downloads/* (2).*&#39;</span><span class="p">))</span>
+    <span class="n">trash</span><span class="p">(</span><span class="n">dir</span><span class="p">(</span><span class="s1">&#39;~/Downloads/*.1&#39;</span><span class="p">))</span>
+  <span class="k">end</span>
+
+  <span class="n">rule</span> <span class="s1">&#39;Trash files downloaded while developing&#39;</span> <span class="k">do</span>
+    <span class="k">if</span> <span class="no">Maid</span><span class="o">::</span><span class="no">Platform</span><span class="o">.</span><span class="n">osx?</span>
+      <span class="n">dir</span><span class="p">(</span><span class="s1">&#39;~/Downloads/*&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">path</span><span class="o">|</span>
+        <span class="k">if</span> <span class="n">downloaded_from</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">any?</span> <span class="p">{</span> <span class="o">|</span><span class="n">url</span><span class="o">|</span> <span class="n">url</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/^http:\/\/localhost/</span><span class="p">)</span> <span class="p">}</span>
+          <span class="n">trash</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="n">rule</span> <span class="s1">&#39;Keep menus around&#39;</span> <span class="k">do</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;~/Reference/Menus/&#39;</span>
+    <span class="n">mkdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">move</span><span class="p">(</span><span class="n">dir</span><span class="p">(</span><span class="s1">&#39;~/Downloads/*menu*.pdf&#39;</span><span class="p">),</span> <span class="n">path</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="n">rule</span> <span class="s1">&#39;Collect downloaded videos to watch later&#39;</span> <span class="k">do</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>This isn't quite right on OSX (would be "Movies"), but I've tended to prefer this.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="n">to_watch</span> <span class="o">=</span> <span class="s1">&#39;~/Videos/To Watch&#39;</span>
+    <span class="n">mkdir</span><span class="p">(</span><span class="n">to_watch</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <p>I'm hoping to simplify this with mimetypes.  See the <a href="https://github.com/benjaminoakes/maid/issues/51">Add filetype
+detection</a> issue.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="sx">%w(mov mp4 m4v ogv webm)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">ext</span><span class="o">|</span>
+      <span class="n">move</span><span class="p">(</span><span class="n">dir</span><span class="p">(</span><span class="s2">&quot;~/Downloads/*.</span><span class="si">#{</span> <span class="n">ext</span> <span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">to_watch</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="n">rule</span> <span class="s1">&#39;Put books in my library&#39;</span> <span class="k">do</span>
+    <span class="n">book_library</span> <span class="o">=</span> <span class="s1">&#39;~/Books/&#39;</span>
+
+    <span class="n">move</span><span class="p">(</span><span class="n">dir</span><span class="p">(</span><span class="s1">&#39;~/Downloads/*.mobi&#39;</span><span class="p">),</span> <span class="n">book_library</span><span class="p">)</span>
+    <span class="n">move</span><span class="p">(</span><span class="n">dir</span><span class="p">(</span><span class="s1">&#39;~/Downloads/*.epub&#39;</span><span class="p">),</span> <span class="n">book_library</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="no">Maid</span><span class="o">::</span><span class="no">Platform</span><span class="o">.</span><span class="n">osx?</span>
+      <span class="n">dir</span><span class="p">(</span><span class="s1">&#39;~/Downloads/*.pdf&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">path</span><span class="o">|</span>
+        <span class="k">if</span> <span class="n">downloaded_from</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">any?</span> <span class="p">{</span> <span class="o">|</span><span class="n">url</span><span class="o">|</span> <span class="n">url</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/book/</span><span class="p">)</span> <span class="p">}</span>
+          <span class="n">move</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">book_library</span><span class="p">)</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="n">rule</span> <span class="s1">&#39;Trash downloaded software&#39;</span> <span class="k">do</span>
+    <span class="n">trash</span><span class="p">(</span><span class="n">dir</span><span class="p">(</span><span class="s1">&#39;~/Downloads/*.deb&#39;</span><span class="p">))</span>
+    <span class="n">trash</span><span class="p">(</span><span class="n">dir</span><span class="p">(</span><span class="s1">&#39;~/Downloads/*.dmg&#39;</span><span class="p">))</span>
+    <span class="n">trash</span><span class="p">(</span><span class="n">dir</span><span class="p">(</span><span class="s1">&#39;~/Downloads/*.exe&#39;</span><span class="p">))</span></pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <p>FIXME: <code>zipfile_contents</code> is complaining about zip formats on Ubuntu.</p>
+
+<pre><code>osx_app_extensions = %w(app dmg pkg wdgt)
+osx_app_patterns = osx_app_extensions.map { |ext| (/\.#{ext}\/$/) }
+
+zips_with_osx_apps_inside = dir('~/Downloads/*.zip').select do |path|
+  candidates = zipfile_contents(path)
+  candidates.any? { |c| osx_app_patterns.any? { |re| c.match(re) } }
+end
+
+trash(zips_with_osx_apps_inside)
+</code></pre>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="k">end</span></pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <h2>Cleaning up after Maid</h2>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-13">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-13">&#182;</a>               </div>               <p>This one should be after all the other 'Downloads' and 'Outbox' rules</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="n">rule</span> <span class="s1">&#39;Remove empty directories&#39;</span> <span class="k">do</span>
+    <span class="p">(</span><span class="n">dir</span><span class="p">(</span><span class="s1">&#39;~/Downloads/*&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">dir</span><span class="p">(</span><span class="s1">&#39;~/Outbox/*&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">path</span><span class="o">|</span>
+      <span class="k">if</span> <span class="no">File</span><span class="o">.</span><span class="n">directory?</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="no">Dir</span><span class="o">[</span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">path</span><span class="si">}</span><span class="s2">/*&quot;</span><span class="o">].</span><span class="n">empty?</span>
+        <span class="n">trash</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
