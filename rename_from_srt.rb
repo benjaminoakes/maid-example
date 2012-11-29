@@ -1,14 +1,14 @@
 Maid.rules do
   # If the current directory is full of subtitles like this:
   #
-  #     Name - 1x01 - Pilot.srt
-  #     Name - 1x02 - Next Episode.srt
+  #     Name - 1x01 - Pilot.EN.srt
+  #     Name - 1x02 - Next Episode.EN.srt
   #     ...
   #
   # This rule will rename it like this:
   #
-  #     Name - 1x01 - Pilot.srt
-  #     Name - 1x02 - Next Episode.srt
+  #     1x01 - Pilot.srt
+  #     1x02 - Next Episode.srt
   #     ...
   #
   rule 'Use standard naming convention' do
