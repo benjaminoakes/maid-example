@@ -19,7 +19,7 @@ Maid.rules do
 
   rule 'Trash old temporary files' do
     dir('~/Outbox/*.tmp.*').each do |p|
-      trash(p) if 1.week.since?(accessed_at(p))
+      trash(p) if 1.week.since?(modified_at(p))
     end
   end
 
@@ -27,10 +27,11 @@ Maid.rules do
     [
       dir('~/Outbox/*.eml'),
       dir('~/Outbox/*.mp3'),
+      dir('~/Outbox/*.pdf'),
       # I changed the default OS X screenshot directory from `~/Desktop` to `~/Outbox`
       dir('~/Outbox/Screen shot *'),
     ].flatten.each do |p|
-      trash(p) if 1.week.since?(accessed_at(p))
+      trash(p) if 1.week.since?(modified_at(p))
     end
 
     dir('~/Outbox/*.log').each do |p|
@@ -76,10 +77,30 @@ Maid.rules do
     # Annoying extra text files from Exchange attachments
     trash(dir('~/Downloads/ATT*.c'))
 
+    # It's rare that I download these file types and don't put them somewhere else quickly.  More often, these are still in Downloads because it was an accident.
+    [
+      dir('~/Downloads/*.csv'),
+      dir('~/Downloads/*.doc'),
+      dir('~/Downloads/*.docx'),
+      dir('~/Downloads/*.ics'),
+      dir('~/Downloads/*.ppt'),
+      dir('~/Downloads/*.js'),
+      dir('~/Downloads/*.rb'),
+      dir('~/Downloads/*.xml'),
+      dir('~/Downloads/*.xlsx'),
+    ].flatten.each do |p|
+      trash(p) if 3.days.since?(accessed_at(p))
+    end
+
     # Quick 'n' dirty duplicate download detection
     trash(dir('~/Downloads/* (1).*'))
     trash(dir('~/Downloads/* (2).*'))
     trash(dir('~/Downloads/*.1'))
+
+    trash(dir('~/Downloads/Chart_of_the_Day.png'))
+    trash(dir('~/Downloads/Chart_of_the_Day*.png'))
+    trash(dir('~/Downloads/conf_recorded_on_*.mp3'))
+    trash(dir('~/Downloads/conf_recorded_on_*.ogg'))
   end
 
   rule 'Trash files downloaded while developing' do
@@ -90,12 +111,6 @@ Maid.rules do
         end
       end
     end
-  end
-
-  rule 'Keep menus around' do
-    path = '~/Reference/Menus/'
-    mkdir(path)
-    move(dir('~/Downloads/*menu*.pdf'), path)
   end
 
   rule 'Collect downloaded videos to watch later' do
@@ -110,25 +125,39 @@ Maid.rules do
     end
   end
 
-  rule 'Put books in my library' do
-    book_library = '~/Books/'
+  rule 'Keep menus around' do
+    path = '~/Reference/Menus/'
+    mkdir(path)
+    move(dir('~/Downloads/*menu*.pdf'), path)
+  end
 
-    move(dir('~/Downloads/*.mobi'), book_library)
+  rule 'Put sales fliers on my phone via Dropbox' do
+    pending = '~/Dropbox/Pending/'
+    mkdir(pending)
+    # Intentionally overwrites
+    move(dir('~/Downloads/wrd.pdf'), pending)
+  end
+
+  rule 'Put things to read in my library' do
+    book_library = '~/Books/To Read/'
+
+    mkdir(book_library)
+
     move(dir('~/Downloads/*.epub'), book_library)
-
-    if Maid::Platform.osx?
-      dir('~/Downloads/*.pdf').each do |path|
-        if downloaded_from(path).any? { |url| url.match(/book/) }
-          move(path, book_library)
-        end
-      end
-    end
+    move(dir('~/Downloads/*.mobi'), book_library)
+    move(dir('~/Downloads/*.pdf'), book_library)
   end
 
   rule 'Trash downloaded software' do
-    trash(dir('~/Downloads/*.deb'))
-    trash(dir('~/Downloads/*.dmg'))
-    trash(dir('~/Downloads/*.exe'))
+    # These can generally be downloaded again very easily if needed... but just in case, give me a few days before trashing them.
+    [
+      dir('~/Downloads/*.deb'),
+      dir('~/Downloads/*.dmg'),
+      dir('~/Downloads/*.exe'),
+      dir('~/Downloads/*.pkg'),
+    ].flatten.each do |p|
+      trash(p) if 3.days.since?(accessed_at(p))
+    end
 
     # FIXME: `zipfile_contents` is complaining about zip formats on Ubuntu.
     #
