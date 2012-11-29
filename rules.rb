@@ -1,14 +1,15 @@
-# Personal Maid rules for [@benjaminoakes](https://github.com/benjaminoakes).
+# These are the [Maid](https://github.com/benjaminoakes/maid) rules that I
+# ([@benjaminoakes](https://github.com/benjaminoakes)) use.  I run them once an hour using `cron`.
 #
-# I run them once an hour using `cron`.
+# You can find more information [on GitHub](https://github.com/benjaminoakes/maid-example).
 #
 # As a rule of thumb, keep in mind that it's easier to bend your process to Maid
 # rather than bending Maid to your process.  That means making new folders, 
 # marking files with metadata (even just extensions), etc. just so you can have
 # them automatically cleaned up.
 Maid.rules do
-  # Temporary Files
-  # ---------------
+  # Cleaning Temporary Files
+  # ------------------------
 
   rule 'Dump my temporary folder' do
     mkdir('~/tmp')
@@ -26,7 +27,7 @@ Maid.rules do
     [
       dir('~/Outbox/*.eml'),
       dir('~/Outbox/*.mp3'),
-      # I changed the default OS X screenshot directory from '~/Desktop' to '~/Outbox'
+      # I changed the default OS X screenshot directory from `~/Desktop` to `~/Outbox`
       dir('~/Outbox/Screen shot *'),
     ].flatten.each do |p|
       trash(p) if 1.week.since?(accessed_at(p))
@@ -68,8 +69,8 @@ Maid.rules do
     end
   end
 
-  # Downloads
-  # ---------
+  # Cleaning Downloads
+  # ------------------
 
   rule "Trash files that shouldn't have been downloaded" do
     # Annoying extra text files from Exchange attachments
@@ -142,8 +143,8 @@ Maid.rules do
     #     trash(zips_with_osx_apps_inside)
   end
 
-  # Maid cleanup
-  # ------------
+  # Cleaning up after Maid
+  # ----------------------
 
   # This one should be after all the other 'Downloads' and 'Outbox' rules
   rule 'Remove empty directories' do
