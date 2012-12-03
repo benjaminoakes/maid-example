@@ -8,6 +8,8 @@
 # marking files with metadata (even just extensions), etc. just so you can have
 # them automatically cleaned up.
 Maid.rules do
+  # NOTE: Currently depends on features to be released in v0.2.0
+
   # Cleaning Temporary Files
   # ------------------------
 
@@ -24,11 +26,8 @@ Maid.rules do
   end
 
   rule 'Trash working files not worth keeping' do
-    [
-      dir('~/Outbox/*.{eml,mp3,pdf}'),
       # I changed the default OS X screenshot directory from `~/Desktop` to `~/Outbox`
-      dir('~/Outbox/Screen shot *'),
-    ].flatten.each do |p|
+    dir(['~/Outbox/*.{eml,mp3,pdf}', '~/Outbox/Screen shot *']).each do |p|
       trash(p) if 1.week.since?(modified_at(p))
     end
 
@@ -101,32 +100,24 @@ Maid.rules do
   end
 
   rule 'Collect downloaded videos to watch later' do
-    # This isn't quite right on OSX (would be "Movies"), but I've tended to prefer this.
-    to_watch = '~/Videos/To Watch'
-    mkdir(to_watch)
+    # This isn't quite right on OSX (would be "Movies" instead of "Videos"), but I've tended to prefer this.
 
     # I'm hoping to simplify this with mimetypes.  See the [Add filetype
     # detection](https://github.com/benjaminoakes/maid/issues/51) issue.
-    move(dir('~/Downloads/*.{mov,mp4,m4v,ogv,webm}'), to_watch)
+    move(dir('~/Downloads/*.{mov,mp4,m4v,ogv,webm}'), mkdir('~/Videos/To Watch'))
   end
 
   rule 'Keep menus around' do
-    path = '~/Reference/Menus/'
-    mkdir(path)
-    move(dir('~/Downloads/*menu*.pdf'), path)
+    move(dir('~/Downloads/*menu*.pdf'), mkdir('~/Reference/Menus/'))
   end
 
   rule 'Put sales fliers on my phone via Dropbox' do
-    pending = '~/Dropbox/Pending/'
-    mkdir(pending)
     # Intentionally overwrites
-    move(dir('~/Downloads/wrd.pdf'), pending)
+    move(dir('~/Downloads/wrd.pdf'), mkdir('~/Dropbox/Pending/'))
   end
 
   rule 'Put things to read in my library' do
-    book_library = '~/Books/To Read/'
-    mkdir(book_library)
-    move(dir('~/Downloads/*.{epub,mobi,pdf}'), book_library)
+    move(dir('~/Downloads/*.{epub,mobi,pdf}'), mkdir('~/Books/To Read/'))
   end
 
   rule 'Trash downloaded software' do
@@ -153,8 +144,8 @@ Maid.rules do
 
   # This one should be after all the other 'Downloads' and 'Outbox' rules
   rule 'Remove empty directories' do
-    (dir('~/Downloads/*') + dir('~/Outbox/*')).each do |path|
-      if File.directory?(path) && Dir["#{path}/*"].empty?
+    dir(['~/Downloads/*', '~/Outbox/*']).each do |path|
+      if File.directory?(path) && dir("#{ path }/*").empty?
         trash(path)
       end
     end
