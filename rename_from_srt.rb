@@ -12,7 +12,7 @@ Maid.rules do
   #     ...
   #
   rule 'Use standard naming convention' do
-    dir('*.EN.srt').sort.each do |old|
+    dir('*.EN.srt').each do |old|
       base = File.basename(old)
       new = base.sub(/^.*?(\d)/, '\1').sub(/(\.DVD)?\.EN.srt$/i, '.srt')
       move(old, new)
@@ -36,7 +36,7 @@ Maid.rules do
   #     ...
   #
   rule 'Add titles to episodes' do
-    dir('*.srt').sort.each do |srt|
+    dir('*.srt').each do |srt|
       base = File.basename(srt, '.srt')
       old = "#{ base.split(' - ').first }.m4v"
       new = "#{ base }.m4v"

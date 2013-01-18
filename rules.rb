@@ -75,7 +75,7 @@ Maid.rules do
     trash(dir('~/Downloads/ATT*.c'))
 
     # It's rare that I download these file types and don't put them somewhere else quickly.  More often, these are still in Downloads because it was an accident.
-    dir('~/Downloads/*.{csv,doc,docx,ics,ppt,js,rb,xml,xlsx}').each do |p|
+    dir('~/Downloads/*.{csv,doc,docx,gem,vcs,ics,ppt,js,rb,xml,xlsx}').each do |p|
       trash(p) if 3.days.since?(accessed_at(p))
     end
 
@@ -87,6 +87,13 @@ Maid.rules do
     trash(dir('~/Downloads/Chart_of_the_Day.png'))
     trash(dir('~/Downloads/Chart_of_the_Day*.png'))
     trash(dir('~/Downloads/conf_recorded_on_*.{mp3,ogg}'))
+  end
+
+  rule 'Trash downloads that have a limited lifetime' do
+    # Often shared from Skype, etc
+    dir('~/Downloads/Screen shot *').each do |p|
+      trash(p) if 3.days.since?(accessed_at(p))
+    end
   end
 
   rule 'Trash files downloaded while developing' do
