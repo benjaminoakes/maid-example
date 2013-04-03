@@ -54,7 +54,7 @@ Maid.rules do
     base_archive_path = '~/Code/snippets/'
 
     {
-      'html' => 'html',
+      # 'html' => 'html',
       'js' => 'javascript',
       'rb' => 'ruby',
       'sql' => 'sql',
