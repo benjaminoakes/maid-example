@@ -8,6 +8,8 @@
 # marking files with metadata (even just extensions), etc. just so you can have
 # them automatically cleaned up.
 Maid.rules do
+  # NOTE: Currently depends on features to be released in v0.2.0
+
   # Cleaning Temporary Files
   # ------------------------
 
@@ -24,13 +26,8 @@ Maid.rules do
   end
 
   rule 'Trash working files not worth keeping' do
-    [
-      dir('~/Outbox/*.eml'),
-      dir('~/Outbox/*.mp3'),
-      dir('~/Outbox/*.pdf'),
       # I changed the default OS X screenshot directory from `~/Desktop` to `~/Outbox`
-      dir('~/Outbox/Screen shot *'),
-    ].flatten.each do |p|
+    dir(['~/Outbox/*.{eml,mp3,pdf}', '~/Outbox/Screen shot *']).each do |p|
       trash(p) if 1.week.since?(modified_at(p))
     end
 
@@ -58,6 +55,9 @@ Maid.rules do
       'js' => 'javascript',
       'rb' => 'ruby',
       'sql' => 'sql',
+      'js'   => 'javascript',
+      'rb'   => 'ruby',
+      'sql'  => 'sql',
     }.each do |ext, directory|
       specific_archive_path = "~/Code/snippets/#{ directory }"
 
@@ -78,17 +78,7 @@ Maid.rules do
     trash(dir('~/Downloads/ATT*.c'))
 
     # It's rare that I download these file types and don't put them somewhere else quickly.  More often, these are still in Downloads because it was an accident.
-    [
-      dir('~/Downloads/*.csv'),
-      dir('~/Downloads/*.doc'),
-      dir('~/Downloads/*.docx'),
-      dir('~/Downloads/*.ics'),
-      dir('~/Downloads/*.ppt'),
-      dir('~/Downloads/*.js'),
-      dir('~/Downloads/*.rb'),
-      dir('~/Downloads/*.xml'),
-      dir('~/Downloads/*.xlsx'),
-    ].flatten.each do |p|
+    dir('~/Downloads/*.{csv,doc,docx,gem,vcs,ics,ppt,js,rb,xml,xlsx}').each do |p|
       trash(p) if 3.days.since?(accessed_at(p))
     end
 
@@ -99,8 +89,14 @@ Maid.rules do
 
     trash(dir('~/Downloads/Chart_of_the_Day.png'))
     trash(dir('~/Downloads/Chart_of_the_Day*.png'))
-    trash(dir('~/Downloads/conf_recorded_on_*.mp3'))
-    trash(dir('~/Downloads/conf_recorded_on_*.ogg'))
+    trash(dir('~/Downloads/conf_recorded_on_*.{mp3,ogg}'))
+  end
+
+  rule 'Trash downloads that have a limited lifetime' do
+    # Often shared from Skype, etc
+    dir('~/Downloads/Screen shot *').each do |p|
+      trash(p) if 3.days.since?(accessed_at(p))
+    end
   end
 
   rule 'Trash files downloaded while developing' do
@@ -114,48 +110,29 @@ Maid.rules do
   end
 
   rule 'Collect downloaded videos to watch later' do
-    # This isn't quite right on OSX (would be "Movies"), but I've tended to prefer this.
-    to_watch = '~/Videos/To Watch'
-    mkdir(to_watch)
+    # This isn't quite right on OSX (would be "Movies" instead of "Videos"), but I've tended to prefer this.
 
     # I'm hoping to simplify this with mimetypes.  See the [Add filetype
     # detection](https://github.com/benjaminoakes/maid/issues/51) issue.
-    %w(mov mp4 m4v ogv webm).each do |ext|
-      move(dir("~/Downloads/*.#{ ext }"), to_watch)
-    end
+    move(dir('~/Downloads/*.{mov,mp4,m4v,ogv,webm}'), mkdir('~/Videos/To Watch'))
   end
 
   rule 'Keep menus around' do
-    path = '~/Reference/Menus/'
-    mkdir(path)
-    move(dir('~/Downloads/*menu*.pdf'), path)
+    move(dir('~/Downloads/*menu*.pdf'), mkdir('~/Reference/Menus/'))
   end
 
   rule 'Put sales fliers on my phone via Dropbox' do
-    pending = '~/Dropbox/Pending/'
-    mkdir(pending)
     # Intentionally overwrites
-    move(dir('~/Downloads/wrd.pdf'), pending)
+    move(dir('~/Downloads/wrd.pdf'), mkdir('~/Dropbox/Pending/'))
   end
 
   rule 'Put things to read in my library' do
-    book_library = '~/Books/To Read/'
-
-    mkdir(book_library)
-
-    move(dir('~/Downloads/*.epub'), book_library)
-    move(dir('~/Downloads/*.mobi'), book_library)
-    move(dir('~/Downloads/*.pdf'), book_library)
+    move(dir('~/Downloads/*.{epub,mobi,pdf}'), mkdir('~/Books/To Read/'))
   end
 
   rule 'Trash downloaded software' do
     # These can generally be downloaded again very easily if needed... but just in case, give me a few days before trashing them.
-    [
-      dir('~/Downloads/*.deb'),
-      dir('~/Downloads/*.dmg'),
-      dir('~/Downloads/*.exe'),
-      dir('~/Downloads/*.pkg'),
-    ].flatten.each do |p|
+    dir('~/Downloads/*.{deb,dmg,exe,pkg}').each do |p|
       trash(p) if 3.days.since?(accessed_at(p))
     end
 
@@ -177,10 +154,12 @@ Maid.rules do
 
   # This one should be after all the other 'Downloads' and 'Outbox' rules
   rule 'Remove empty directories' do
-    (dir('~/Downloads/*') + dir('~/Outbox/*')).each do |path|
-      if File.directory?(path) && Dir["#{path}/*"].empty?
+    dir(['~/Downloads/*', '~/Outbox/*']).each do |path|
+      if File.directory?(path) && dir("#{ path }/*").empty?
         trash(path)
       end
     end
   end
+
+  # TODO: move from ~/Public/Drop Box/ somewhere
 end
