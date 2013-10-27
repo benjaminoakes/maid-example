@@ -8,7 +8,7 @@
 # marking files with metadata (even just extensions), etc. just so you can have
 # them automatically cleaned up.
 Maid.rules do
-  # NOTE: Currently depends on features to be released in v0.2.0
+  # NOTE: Currently depends on features to be released in v0.4.0
 
   # Cleaning Temporary Files
   # ------------------------
@@ -26,7 +26,7 @@ Maid.rules do
   end
 
   rule 'Trash working files not worth keeping' do
-      # I changed the default OS X screenshot directory from `~/Desktop` to `~/Outbox`
+    # I changed the default OS X screenshot directory from `~/Desktop` to `~/Outbox`
     dir(['~/Outbox/*.{eml,mp3,pdf}', '~/Outbox/Screen shot *']).each do |p|
       trash(p) if 1.week.since?(modified_at(p))
     end
@@ -48,16 +48,13 @@ Maid.rules do
 
   # I write little test programs sometimes, and I keep them around for reference.
   rule 'Archive code snippets' do
-    base_archive_path = '~/Code/snippets/'
-
     {
-      # 'html' => 'html',
-      'js' => 'javascript',
-      'rb' => 'ruby',
+      'js'  => 'javascript',
+      'rb'  => 'ruby',
       'sql' => 'sql',
-      'js'   => 'javascript',
-      'rb'   => 'ruby',
-      'sql'  => 'sql',
+      'js'  => 'javascript',
+      'rb'  => 'ruby',
+      'sql' => 'sql',
     }.each do |ext, directory|
       specific_archive_path = "~/Code/snippets/#{ directory }"
 
@@ -140,12 +137,12 @@ Maid.rules do
     #
     #     osx_app_extensions = %w(app dmg pkg wdgt)
     #     osx_app_patterns = osx_app_extensions.map { |ext| (/\.#{ext}\/$/) }
-    #     
+    #
     #     zips_with_osx_apps_inside = dir('~/Downloads/*.zip').select do |path|
     #       candidates = zipfile_contents(path)
     #       candidates.any? { |c| osx_app_patterns.any? { |re| c.match(re) } }
     #     end
-    #     
+    #
     #     trash(zips_with_osx_apps_inside)
   end
 
