@@ -8,7 +8,7 @@
 # marking files with metadata (even just extensions), etc. just so you can have
 # them automatically cleaned up.
 Maid.rules do
-  # NOTE: Currently depends on features to be released in v0.4.0
+  # NOTE: Currently depends on features to be released in Maid v0.4.0
 
   # Cleaning Temporary Files
   # ------------------------
@@ -72,21 +72,14 @@ Maid.rules do
 
   rule "Trash files that shouldn't have been downloaded" do
     # Annoying extra text files from Exchange attachments
-    trash(dir('~/Downloads/ATT*.c'))
+    trash dir('~/Downloads/ATT*.c')
 
     # It's rare that I download these file types and don't put them somewhere else quickly.  More often, these are still in Downloads because it was an accident.
     dir('~/Downloads/*.{csv,doc,docx,gem,vcs,ics,ppt,js,rb,xml,xlsx}').each do |p|
       trash(p) if 3.days.since?(accessed_at(p))
     end
 
-    # Quick 'n' dirty duplicate download detection
-    trash(dir('~/Downloads/* (1).*'))
-    trash(dir('~/Downloads/* (2).*'))
-    trash(dir('~/Downloads/*.1'))
-
-    trash(dir('~/Downloads/Chart_of_the_Day.png'))
-    trash(dir('~/Downloads/Chart_of_the_Day*.png'))
-    trash(dir('~/Downloads/conf_recorded_on_*.{mp3,ogg}'))
+    trash verbose_dupes_in('~/Downloads/*')
   end
 
   rule 'Trash downloads that have a limited lifetime' do
@@ -106,12 +99,30 @@ Maid.rules do
     end
   end
 
+  rule 'Trash downloaded software' do
+    # These can generally be downloaded again very easily if needed... but just in case, give me a few days before trashing them.
+    dir('~/Downloads/*.{deb,dmg,exe,pkg,rpm}').each do |p|
+      trash(p) if 3.days.since?(accessed_at(p))
+    end
+
+    osx_app_extensions = %w(app dmg pkg wdgt)
+    osx_app_patterns = osx_app_extensions.map { |ext| (/\.#{ext}\/$/) }
+    
+    zips_with_osx_apps_inside = dir('~/Downloads/*.zip').select do |path|
+      candidates = zipfile_contents(path)
+      candidates.any? { |c| osx_app_patterns.any? { |re| c.match(re) } }
+    end
+    
+    trash(zips_with_osx_apps_inside)
+  end
+
   rule 'Collect downloaded videos to watch later' do
     # This isn't quite right on OSX (would be "Movies" instead of "Videos"), but I've tended to prefer this.
+    move where_content_type(dir('~/Downloads/*'), 'video'), mkdir('~/Videos/To Watch')
+  end
 
-    # I'm hoping to simplify this with mimetypes.  See the [Add filetype
-    # detection](https://github.com/benjaminoakes/maid/issues/51) issue.
-    move(dir('~/Downloads/*.{mov,mp4,m4v,ogv,webm}'), mkdir('~/Videos/To Watch'))
+  rule 'Assume audio is music and add it to my player' do
+    move where_content_type(dir('~/Downloads/*'), 'audio'), mkdir('~/Music/iTunes/iTunes Media/Automatically Add to iTunes/')
   end
 
   rule 'Keep menus around' do
@@ -125,25 +136,6 @@ Maid.rules do
 
   rule 'Put things to read in my library' do
     move(dir('~/Downloads/*.{epub,mobi,pdf}'), mkdir('~/Books/To Read/'))
-  end
-
-  rule 'Trash downloaded software' do
-    # These can generally be downloaded again very easily if needed... but just in case, give me a few days before trashing them.
-    dir('~/Downloads/*.{deb,dmg,exe,pkg}').each do |p|
-      trash(p) if 3.days.since?(accessed_at(p))
-    end
-
-    # FIXME: `zipfile_contents` is complaining about zip formats on Ubuntu.
-    #
-    #     osx_app_extensions = %w(app dmg pkg wdgt)
-    #     osx_app_patterns = osx_app_extensions.map { |ext| (/\.#{ext}\/$/) }
-    #
-    #     zips_with_osx_apps_inside = dir('~/Downloads/*.zip').select do |path|
-    #       candidates = zipfile_contents(path)
-    #       candidates.any? { |c| osx_app_patterns.any? { |re| c.match(re) } }
-    #     end
-    #
-    #     trash(zips_with_osx_apps_inside)
   end
 
   # Cleaning up after Maid
