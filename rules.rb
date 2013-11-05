@@ -84,7 +84,7 @@ Maid.rules do
 
   rule 'Trash downloads that have a limited lifetime' do
     # Often shared from Skype, etc
-    dir('~/Downloads/Screen shot *').each do |p|
+    dir('~/Downloads/Screenshot *').each do |p|
       trash(p) if 3.days.since?(accessed_at(p))
     end
   end
