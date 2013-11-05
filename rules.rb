@@ -99,9 +99,11 @@ Maid.rules do
     end
   end
 
-  rule 'Trash downloaded software' do
+  rule 'Handle downloaded software' do
+    move dir('~/Downloads/*.iso'), '~/Public'
+    
     # These can generally be downloaded again very easily if needed... but just in case, give me a few days before trashing them.
-    dir('~/Downloads/*.{deb,dmg,exe,pkg,rpm}').each do |p|
+    dir('~/Downloads/*.{apk,deb,dmg,exe,pkg,rpm}').each do |p|
       trash(p) if 3.days.since?(accessed_at(p))
     end
 
